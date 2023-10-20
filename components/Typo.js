@@ -15,6 +15,7 @@ const Typo = ({
   xs,
   fontFamily,
   center,
+  bold,
   style,
   ...props
 }) => {
@@ -28,7 +29,7 @@ const Typo = ({
   };
 
   const fontStyles = {
-    fontFamily: light ? Theme.PoppinsLight : Theme.PoppinsMedium,
+    fontFamily: light ? Theme.PoppinsLight : bold ? Theme.PoppinsBold : Theme.PoppinsMedium,
     color: grey ? Theme.lightTextcolor : 'black',
     textAlign:center ? 'center' : 'left'
   };
