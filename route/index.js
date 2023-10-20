@@ -1,5 +1,5 @@
-import React,{useEffect} from 'react';
-import {StyleSheet,Platform,Text} from 'react-native'
+import React,{useEffect, useState} from 'react';
+import {StyleSheet,Platform,View, ActivityIndicator} from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -8,6 +8,13 @@ import Theme from '../src/Theme';
 import LandingScreen from '../screens/LandingScreen';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
+import HomeScreen from '../screens/HomeScreen';
+import useStore from '../store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MD2Colors } from 'react-native-paper';
+import SearchScreen from '../screens/SearchScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import NotificationScreen from '../screens/NotificationScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -17,10 +24,50 @@ const inactiveIconColor = '#1B0C38';
 
 
 export default function MyStack() {
+
+  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
+  const isLoggedIn = useStore((state) => state.isLoggedIn);
+  const setUserID = useStore((state) => state.setUserID);
+  const userID = useStore((state) => state.userID);
+  const [loading,setLoading] = useState(true)  
+
+
+  const checkLoggedIn = async () => {
+
+    const isLoggedInString = await AsyncStorage.getItem('isLoggedIn');
+    const storeUserId = await AsyncStorage.getItem('userID');
+
+    if (isLoggedInString === 'true') {
+      setIsLoggedIn(true);
+      console.log('Login :',isLoggedIn)
+    }
+
+    if (storeUserId !== null ){ 
+      setUserID(storeUserId)
+      console.log('UID :',storeUserId)
+    }
+
+    setLoading(false)
+  };
+
+  useEffect(() => {
+    checkLoggedIn();
+  }, []);
+
+
+
+  if(loading){
+    return(
+      <View style={{flex:1,backgroundColor:'white',justifyContent: 'center',alignItems:'center'}}>
+        <ActivityIndicator size={'large'} color={Theme.primaryColor} />
+      </View>
+    )
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false }}>
-        <Stack.Screen name="LandingScreen" component={LandingScreen} />
+      {!isLoggedIn ? <Stack.Screen name='LandingScreen' component={LandingScreen} /> : <Stack.Screen name='MainTab' component={MainTab} />}
         <Stack.Screen name="SignupScreen" component={SignupScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
       </Stack.Navigator>
@@ -29,71 +76,102 @@ export default function MyStack() {
 }
 
 
-// function MainRoute() {
-//     return (
-//       <Tab.Navigator
-//         screenOptions={({ route }) => ({
-//           tabBarIcon: ({ focused }) => {
-//             let iconSource;
-//             let iconColor;
+function MainTab() {
+    return (
+      <Tab.Navigator
+      shifting={true}
+      initialRouteName="Home"
+      screenOptions={({ route }) => ({
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          right: 20,
+          elevation: 2,
+          shadowColor: "#171717",
+          shadowOffset: { width: -2, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+          backgroundColor: MD2Colors.white,
+          paddingBottom: -8,
+          height: 65,
+          borderRadius: 35,
+        },
+        headerShown: false,
+        tabBarIcon: ({ focused, color, size, el, activeColor }) => {
+          let iconName;
+          //let size;
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "ios-home-outline";
+            size = focused ? 25 : 23;
+            // color = "#a2d2ff";
+            color = "#000";
+          } else if (route.name === "Profile") {
+            iconName = focused ? "ios-person" : "ios-person-outline";
+            size = focused ? 25 : 23;
+            // color = "#84a59d";
+            color = "#000";
+          } else if (route.name === "Notification") {
+            iconName = focused ? "ios-heart" : "ios-heart-outline";
+            size = focused ? 25 : 23;
+            // color = "#ffb5a7";
+            color = "#000";
+          } else if (route.name === "Search") {
+            iconName = focused ? "ios-search" : "ios-search-outline";
+            size = focused ? 25 : 23;
+            // color = "#9a8c98";
+            color = "#000";
+          } else if (route.name === "AddContainer") {
+            iconName = focused ? "ios-add-circle" : "ios-add-circle-outline";
+            size = focused ? 25 : 23;
+            // color = "#9a8c98";
+            color = "#000";
+          }
 
-//             switch (route.name) {
-//               case "Home":
-//                 iconSource = "home-sharp";
-//                 break;
-//               case "Tools":
-//                 iconSource = "md-document-text";
-//                 break;
-//               case "Profile":
-//                 iconSource = "person";
-//                 break;
-//             }
-
-//             if (focused) {
-//               iconColor = activeIconColor;
-//             } else {
-//               iconColor = inactiveIconColor;
-//             }
-
-//             return <Ionicons name={iconSource} size={24} color={iconColor} />;
-//           },
-//           tabBarStyle: [styles.tabbarstyle],
-//           tabBarActiveTintColor: Theme.primaryColor,
-//           tabBarInactiveTintColor: "#1B0C38",
-//           tabBarLabelStyle:{
-//             fontSize:14,
-//             padding:0,
-//             margin:0,
-//             fontFamily:Theme.MulishRegular,
-//             marginBottom:Platform.OS=='android' ? 12 : 0
-//           }
-//         })}
-//       >
-//         <Tab.Screen
-//           options={{ headerShown: false }}
-//           name="Home"
-//           component={HomeScreen}
-//         />
-//         <Tab.Screen
-//           options={{ headerShown: false }}
-//           name="Tools"
-//           component={ToolsScreen}
-//         />
-//         <Tab.Screen
-//           options={{ headerShown: false }}
-//           name="Profile"
-//           component={ProfileScreen}
-//         />
-//       </Tab.Navigator>
-//     );
-// }
+          return (
+            <Ionicons
+              name={iconName}
+              size={size}
+              color={color}
+              style={{
+                // borderRadius: 50,
+                borderBottomWidth: 2,
+                borderBottomColor: focused ? color : "#fff",
+                padding: 10,
+                elevation: el,
+                shadowOffset: {
+                  height: 0,
+                  width: 0,
+                },
+              }}
+            />
+          );
+        },
+      })}
+    >
+        <Tab.Screen options={{ headerShown: false }} name="Home" component={HomeScreen}  />
+        <Tab.Screen options={{ headerShown: false }} name="Search" component={SearchScreen}  />
+        <Tab.Screen options={{ headerShown: false }} name="Notification" component={NotificationScreen}  />
+        <Tab.Screen options={{ headerShown: false }} name="Profile" component={ProfileScreen}  />
+      </Tab.Navigator>
+    );
+}
 
 const styles= StyleSheet.create({
-    tabbarstyle:{
-    height: Platform.OS === 'ios' ? 95 : 75, // set the height based on the platform
-    borderTopWidth: 0.5, // add a border to the top of the tab bar
-    borderTopColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF', // set a background color for the tab bar
-    paddingVertical: Platform.OS === 'ios' ? 20 : 0 // add extra padding for iOS to account for the notch
-    },
+  tabBarStyle: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    elevation: 2,
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    backgroundColor: MD2Colors.white,
+    paddingBottom: -8,
+    height: 65,
+    borderRadius: 35,
+  },
 })

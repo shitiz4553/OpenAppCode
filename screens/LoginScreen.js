@@ -69,7 +69,7 @@ function LoginScreen({navigation}){
           } 
           setUserID(user.uid);
           Alert.alert("Login successful", user.uid);
-          navigation.replace("")
+          navigation.replace("MainTab")
         } catch (err) {
           setLabel(err.message);
           setVisible(true);

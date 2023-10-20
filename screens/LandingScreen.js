@@ -22,11 +22,11 @@ function LandingScreen({navigation}){
      <View style={styles.contentHolder}>
      <Typo s>Already have an account?</Typo>
      <Space space={10}/>
-     <FullButton label={'Login'} color={Theme.primaryColor} />
+     <FullButton handlePress={()=>navigation.replace("LoginScreen")} label={'Login'} color={Theme.primaryColor} />
      <Space space={15}/>
      <Typo> OR </Typo>
      <Space space={15}/>
-     <FullButton handlePress={()=>navigation.navigate("SignupScreen")} label={'Sign Up'} color={Theme.primaryColor} />
+     <FullButton handlePress={()=>navigation.replace("SignupScreen")} label={'Sign Up'} color={Theme.primaryColor} />
      </View>
     </View>
     )}

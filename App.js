@@ -40,7 +40,9 @@ export default function App() {
   else {
     return (
       <PaperProvider theme={theme}>
-        <MainRoute />
+        <View style={{ backgroundColor: "white", flex: 1 }}>
+          <MainRoute />
+        </View>
       </PaperProvider>
     );
   }
