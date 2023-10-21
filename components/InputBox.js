@@ -22,10 +22,9 @@ function InputBox({ onChangeText, value,label,keyboardType ,right,secureTextEntr
 export default InputBox;
 
 const styles = StyleSheet.create({
-    container: {
-       width:'100%',
-       borderRadius:15,
-       textTransform:"lowercase"
-    },
-
+  container: {
+    width: "100%",
+    borderRadius: 15,
+    textTransform: "lowercase",
+  },
 });
