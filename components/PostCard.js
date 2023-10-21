@@ -9,6 +9,7 @@ import {
 import { Card } from "react-native-paper";
 import Typo from "./Typo";
 import Space from "./Space";
+import { Ionicons } from '@expo/vector-icons';
 
 function PostCard({navigation}){
 
@@ -30,8 +31,32 @@ function PostCard({navigation}){
           style={[styles.cardCover,{height:height}]}
         />
         <View style={styles.titleArea}>
-          <Typo bold l>Sky @ Eleven</Typo>
+          <View style={{width:'80%'}}>
+          <Typo style={{fontSize:20}}>Sky @ Eleven</Typo>
+          </View>
+          <TouchableOpacity>
+          <Ionicons name="bookmark" size={24} color="black" />
+          </TouchableOpacity>
         </View>
+
+        <Space space={8}/>
+        <Typo s light>Sky @ Eleven dsadasdasd  dssdsd</Typo>
+        <Space space={8}/>
+        <Typo xs light>Sky @ Eleven dsadasdasd  dssdsd</Typo>
+        <Space space={8}/>
+        <Typo l>$950 / mo</Typo>
+        <Space space={5}/>
+        <Typo xs light>Avaialble from 01/10/2023</Typo>
+        <Space space={5}/>
+        <Typo s>1 Rooms, 1 Toilet</Typo>
+        <Space space={5}/>
+    
+        <View style={[styles.titleArea,{marginTop:0}]}>    
+          <Typo xs light>HDB Built : 2006</Typo>
+          <Typo xs light>Sharing : 1/2</Typo>
+        </View>
+        <Space space={5}/>
+        <Typo xs grey bold>Posted: Sep 28</Typo>
       </Card>
     );}
 export default PostCard;
@@ -64,9 +89,8 @@ const styles = StyleSheet.create({
   },
   titleArea:{
     flexDirection:'row',
-    width:'100%',
     justifyContent:'space-between',
     alignItems:'center',
-    marginTop:15
+    marginTop:15,
   }
 });

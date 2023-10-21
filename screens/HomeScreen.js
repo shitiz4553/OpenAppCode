@@ -3,12 +3,14 @@ import {
     View,
     Text,
     StyleSheet,
-    Image
+    Image,
+    ScrollView
 } from "react-native";
 import { Appbar, MD2Colors } from "react-native-paper";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import assets from "../assets/assets";
 import PostCard from "../components/PostCard";
+import Space from "../components/Space";
 
 function HomeScreen({navigation}){
     return (
@@ -48,7 +50,14 @@ function HomeScreen({navigation}){
             onPress={() => navigation.navigate("ChatScreen")}
           />
         </Appbar.Header>
+
+        <ScrollView>
         <PostCard />
+        <PostCard />
+
+        <Space space={100}/>
+        </ScrollView>
+      
       </View>
     );}
 export default HomeScreen;
