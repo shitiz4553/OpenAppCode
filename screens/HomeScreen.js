@@ -1,18 +1,83 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { 
     View,
     Text,
     StyleSheet,
     Image,
-    ScrollView
+    ScrollView,
+    ActivityIndicator
 } from "react-native";
 import { Appbar, MD2Colors } from "react-native-paper";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import assets from "../assets/assets";
 import PostCard from "../components/PostCard";
 import Space from "../components/Space";
+import { collection, doc, getDocs, onSnapshot } from "firebase/firestore";
+import { FB_FIRESTORE } from "../config/firebase";
+import useStore from "../store";
 
 function HomeScreen({navigation}){
+
+  const setUserData = useStore((state) => state.setUserData);
+  const userID = useStore((state) => state.userID);
+  const setPropertyData = useStore((state) => state.setPropertyData);
+  const propertyData = useStore((state) => state.propertyData);
+  const [loading,setLoading] = useState(true)
+
+
+  useEffect(() => {
+    fetchData();
+    fetchDataProperty();
+  }, [userID]);
+  
+  const fetchData = async () => {
+    const docRef = doc(FB_FIRESTORE, "users", userID);
+  
+    try {
+      // Set up a real-time listener
+      onSnapshot(docRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setUserData(data);
+          console.log("Loaded user data...")
+        } else {
+          console.log("Document does not exist!");
+        }
+      });
+
+      setLoading(false);
+      
+    } catch (error) {
+      console.error("Error fetching document:", error);
+      setLoading(false);
+    }
+  };
+
+
+  const fetchDataProperty = async () => {
+    setLoading(true);
+    const docRef = collection(FB_FIRESTORE, "properties");
+    const querySnapshot = await getDocs(docRef);
+  
+    const propertiesArray = [];
+  
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      // Include the document ID in the data
+      data.id = doc.id;
+      propertiesArray.push(data);
+    });
+  
+    // Now, propertiesArray contains all documents with their IDs
+    console.log(propertiesArray); // This will log the array of properties with IDs
+    setPropertyData(propertiesArray);
+    setLoading(false);
+  };
+  
+  
+  
+
+
     return (
       <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
         <Appbar.Header
@@ -51,12 +116,27 @@ function HomeScreen({navigation}){
           />
         </Appbar.Header>
 
+       {
+        loading ?
+        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+          <ActivityIndicator  size={'large'}/>
+        </View>
+        :
         <ScrollView>
-        <PostCard />
-        <PostCard />
+          {propertyData?.map((item,index) => {
+          return (
+            <PostCard
+            key={index}
+            postedBy={item.postedBy}
+            item={item}
+            />
+            );
+            })}
+       
 
         <Space space={100}/>
         </ScrollView>
+       }
       
       </View>
     );}

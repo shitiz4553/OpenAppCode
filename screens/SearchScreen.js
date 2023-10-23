@@ -22,9 +22,6 @@ function SearchScreen({navigation}){
             <InputBox label={"Search"} />
           </View>
         </Appbar.Header>
-        
-    
-            
       </View>
     );}
 export default SearchScreen;

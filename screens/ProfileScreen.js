@@ -4,6 +4,7 @@ import {
     Text,
     StyleSheet,
     Image,
+    Alert,
 } from "react-native";
 import { Appbar, Avatar, Button, Caption, MD2Colors } from "react-native-paper";
 import assets from "../assets/assets";
@@ -11,11 +12,55 @@ import Space from "../components/Space";
 import Typo from "../components/Typo";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { MaterialIcons } from "@expo/vector-icons";
+import useStore from "../store";
+import { FB_AUTH } from "../config/firebase";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialTopTabNavigator();
 
 
 function ProfileScreen({navigation}){
+
+  const userData = useStore((state) => state.userData);
+  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
+  const isLoggedIn = useStore((state) => state.isLoggedIn);
+
+
+  const handleLogout = async () => {
+    // Display a confirmation dialog to confirm the user's intent
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          onPress: async () => {
+            try {
+              // Sign out the user from Firebase Authentication
+              await FB_AUTH.signOut();
+              await AsyncStorage.setItem('isLoggedIn', 'false');
+              const isLoggedInString = await AsyncStorage.getItem('isLoggedIn');
+  
+              if (isLoggedInString === 'false') {
+                setIsLoggedIn(false);
+                navigation.replace('LandingScreen');
+                console.log('Logged Out Successfully');
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          },
+        },
+      ],
+      { cancelable: false } // Prevent dismissing the dialog by tapping outside
+    );
+  };
+
+
     return (
       <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
         <Appbar.Header
@@ -23,37 +68,36 @@ function ProfileScreen({navigation}){
             backgroundColor: "#fff",
             justifyContent: "space-between",
             elevation: 0,
-            justifyContent:'center'
           }}
         >
+          <Appbar.Action />
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
-
+          <Appbar.Action onPress={() => handleLogout()} icon="logout" />
         </Appbar.Header>
         <View style={styles.contentContainer}>
           <View style={styles.avatarHolder}>
           <Avatar.Image
             style={{ elevation: 10 }}
-            source={{uri:"https://randomuser.me/api/portraits/men/30.jpg"}}
+            source={{uri:userData?.userProfilePic}}
             size={90}
           />
-          <Typo s>Username</Typo>
           </View>
           <View style={styles.rightHolder}>
           <View style={styles.userDataContaienr}>
               <View style={{ alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                 66
+                0
                 </Text>
                 <Caption style={{ marginTop: -5 }}>Posts</Caption>
               </View>
               <View style={{ alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-               66
+               {userData?.rating}
                 </Text>
                 <Caption style={{ marginTop: -5 }}>Rating</Caption>
               </View>
               <View style={{ alignItems: "center" }}>
-                <Text style={{ fontWeight: "bold", fontSize: 18 }}>245</Text>
+                <Text style={{ fontWeight: "bold", fontSize: 18 }}>0</Text>
                 <Caption style={{ marginTop: -5 }}>Completed</Caption>
               </View>
             </View>
@@ -61,7 +105,7 @@ function ProfileScreen({navigation}){
             <Button
               mode="contained"
               labelStyle={{ color: "white" }}
-              style={{ marginHorizontal: 10 }}
+              style={{ marginHorizontal: 20 }}
               onPress={()=>navigation.navigate("EditProfileScreen")}
             >
               Edit profile
@@ -69,7 +113,10 @@ function ProfileScreen({navigation}){
           </View>
         </View>
 
-
+        <View style={styles.bioholder}>
+        <Text style={{ fontWeight: "bold", fontSize: 16 }}>{userData?.userName}</Text>
+        <Text style={{ fontSize: 14 }}>{userData?.userBio}</Text>
+        </View>
         <Tab.Navigator
         screenOptions={{
           tabBarActiveTintColor: "#84a59d",
@@ -115,20 +162,25 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingVertical: 15,
     flexDirection: "row",
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
+    justifyContent:'space-between'
   },
   avatarHolder: {
-    alignItems: "center",
+    paddingLeft:5
   },
   rightHolder: {
-    flex:1
+    flex: 1,
+    paddingLeft:5
   },
   userDataContaienr: {
     flexDirection: "row",
-
     alignItems: "center",
     justifyContent: "space-around",
   },
+  bioholder:{
+    backgroundColor:'white',
+    paddingHorizontal:20,
+  }
 });
 
 

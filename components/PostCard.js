@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { 
     View,
     Image,
@@ -10,53 +10,112 @@ import { Card } from "react-native-paper";
 import Typo from "./Typo";
 import Space from "./Space";
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
+import { doc, onSnapshot } from "firebase/firestore";
+import { FB_FIRESTORE } from "../config/firebase";
 
-function PostCard({navigation}){
+function PostCard({postedBy,item}){
 
-    const height =  useWindowDimensions().width + 155
+  const navigation = useNavigation();
+  const [av,setAv] = useState(null)
+  const height =  useWindowDimensions().width + 145
+  const [loading,setLoading] = useState(null)
+
+    useEffect(() => {
+      if(postedBy){
+        fetchData();
+      }
+    }, [postedBy]);
+
+
+    const firestoreTimestamp = item.postedDate;
+    const seconds = firestoreTimestamp.seconds;
+    const nanoseconds = firestoreTimestamp.nanoseconds;
+    
+    const dateObject = new Date(seconds * 1000 + nanoseconds / 1000000); 
+    const formattedDate = dateObject.toDateString();
+
+    const fetchData = async () => {
+      const docRef = doc(FB_FIRESTORE, "users", postedBy);
+    
+      try {
+        // Set up a real-time listener
+        onSnapshot(docRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setAv(data);
+            console.log(data);
+          } else {
+            console.log("Document does not exist!");
+          }
+        });
+  
+        setLoading(false);
+        
+      } catch (error) {
+        console.error("Error fetching document:", error);
+        setLoading(false);
+      }
+    };
+
+
     return (
       <Card style={[styles.container, styles.elevation]}>
-       <TouchableOpacity style={styles.info}>
+        <TouchableOpacity style={styles.info}>
           <Image
-            source={{ uri: "https://randomuser.me/api/portraits/men/47.jpg" }}
+            source={{ uri: av?.userProfilePic }}
             style={styles.avatar}
           />
-          <Typo>Avatar</Typo>
+          <Typo>{av?.userName}</Typo>
         </TouchableOpacity>
         <Space space={10} />
-        <Card.Cover
-          source={{
-            uri: "https://sg1-cdn.pgimgs.com/listing/24679734/UPHO.143750983.V800/Finland-Gardens-East-Coast-Marine-Parade-Singapore.jpg",
-          }}
-          style={[styles.cardCover,{height:height}]}
-        />
+        <TouchableOpacity
+          onPress={() => navigation.navigate("PropertyDetailsScreen",{
+            item:item,
+            av:av,
+            formattedDate:formattedDate
+          })}
+        >
+          <Card.Cover
+            source={{
+              uri: item.propertyImage,
+            }}
+            style={[styles.cardCover, { height: height }]}
+          />
+        </TouchableOpacity>
         <View style={styles.titleArea}>
-          <View style={{width:'80%'}}>
-          <Typo style={{fontSize:20}}>Sky @ Eleven</Typo>
+          <View style={{ width: "80%" }}>
+            <Typo style={{ fontSize: 20 }}>{item.propertyName}</Typo>
           </View>
           <TouchableOpacity>
-          <Ionicons name="bookmark" size={24} color="black" />
+            <Ionicons name="bookmark" size={24} color="black" />
           </TouchableOpacity>
         </View>
 
-        <Space space={8}/>
-        <Typo s light>Sky @ Eleven dsadasdasd  dssdsd</Typo>
-        <Space space={8}/>
-        <Typo xs light>Sky @ Eleven dsadasdasd  dssdsd</Typo>
-        <Space space={8}/>
-        <Typo l>$950 / mo</Typo>
-        <Space space={5}/>
-        <Typo xs light>Avaialble from 01/10/2023</Typo>
-        <Space space={5}/>
-        <Typo s>1 Rooms, 1 Toilet</Typo>
-        <Space space={5}/>
-    
-        <View style={[styles.titleArea,{marginTop:0}]}>    
-          <Typo xs light>HDB Built : 2006</Typo>
-          <Typo xs light>Sharing : 1/2</Typo>
+        <Space space={8} />
+        <Typo s light>
+        {item.propertyLocation}
+        </Typo>
+        <Space space={8} />
+        <Typo xs grey>
+          {item.availability}
+        </Typo>
+        <Space space={8} />
+        <Typo l>${item.price} / mo</Typo>
+        <Space space={5} />
+
+        <View style={[styles.titleArea, { marginTop: 0 }]}>
+          <Typo xs light>
+            {item.propertyType} Built : {item.builtDate}
+          </Typo>
+          <Typo xs light>
+            Sharing : {item.sharing.length}/3
+          </Typo>
         </View>
-        <Space space={5}/>
-        <Typo xs grey bold>Posted: Sep 28</Typo>
+        <Space space={5} />
+        <Typo xs grey bold>
+          Posted: {formattedDate ? formattedDate : null}
+        </Typo>
       </Card>
     );}
 export default PostCard;

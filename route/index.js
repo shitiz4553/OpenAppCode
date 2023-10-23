@@ -16,12 +16,10 @@ import SearchScreen from '../screens/SearchScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import PropertyDetailsScreen from '../screens/PropertyDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-const activeIconColor = Theme.primaryColor;
-const inactiveIconColor = '#1B0C38';
 
 
 export default function MyStack() {
@@ -71,6 +69,7 @@ export default function MyStack() {
       {!isLoggedIn ? <Stack.Screen name='LandingScreen' component={LandingScreen} /> : <Stack.Screen name='MainTab' component={MainTab} />}
         <Stack.Screen name="SignupScreen" component={SignupScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="PropertyDetailsScreen" component={PropertyDetailsScreen} />
         <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
