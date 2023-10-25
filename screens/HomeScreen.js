@@ -92,7 +92,7 @@ function HomeScreen({navigation}){
             icon={() => {
               return <Feather name="plus" size={24} color="black" />;
             }}
-            onPress={() => setLoading(false)}
+            onPress={() => navigation.navigate("CLStepOne")}
           />
 
           {/* <Appbar.Action
@@ -100,7 +100,7 @@ function HomeScreen({navigation}){
             return <Feather name="camera" size={24} color="black" />;
           }}
           onPress={() => navigation.navigate("StoryScreen")}
-        /> */}
+          /> */}
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
           <Appbar.Action
             icon={() => {

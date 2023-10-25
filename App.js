@@ -4,6 +4,7 @@ import MainRoute from "./route/index";
 import Constants from "expo-constants";
 import { useFonts } from 'expo-font';
 import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import { StatusBar } from 'expo-status-bar';
 
 
 const theme = {
@@ -41,6 +42,7 @@ export default function App() {
     return (
       <PaperProvider theme={theme}>
         <View style={{ backgroundColor: "white", flex: 1 }}>
+          <StatusBar style="dark" />
           <MainRoute />
         </View>
       </PaperProvider>

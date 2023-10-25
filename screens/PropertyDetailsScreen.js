@@ -18,7 +18,7 @@ import Theme from "../src/Theme";
 function PropertyDetailsScreen({navigation,route}){
 
 
-    const height =  useWindowDimensions().width + 155
+    const height =  useWindowDimensions().width + 150
     const {item,av,formattedDate} = route.params
 
 
@@ -65,7 +65,7 @@ function PropertyDetailsScreen({navigation,route}){
             <View>
               <Card.Cover
                 source={{
-                  uri: item.propertyImage
+                  uri: item.propertyImage,
                 }}
                 style={[styles.cardCover, { height: height }]}
               />
@@ -88,14 +88,14 @@ function PropertyDetailsScreen({navigation,route}){
               {item.nearby}
             </Typo>
             <Space space={8} />
-            <Typo xs light grey>
+            <Typo xs light style={{textTransform:'uppercase'}}>
               {item.propertyType} Built : {item.builtDate}
             </Typo>
             <Space space={8} />
             <Typo xl>${item.price} / mo</Typo>
             <Space space={5} />
             <Typo xs light>
-              {item.availability}
+             Available From {item.availability}
             </Typo>
 
             <Divider
@@ -109,21 +109,21 @@ function PropertyDetailsScreen({navigation,route}){
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
-                 <View style={{alignItems:'center'}}>
+              <View style={{ alignItems: "center" }}>
                 <IconButton icon={"bed"} size={25} />
                 <Typo xs> {item.room} Room</Typo>
               </View>
-              <View style={{alignItems:'center'}}>
+              <View style={{ alignItems: "center" }}>
                 <IconButton icon={"toilet"} size={25} />
                 <Typo xs>{item.bathroom} Bathroom</Typo>
               </View>
-              <View style={{alignItems:'center'}}>
+              <View style={{ alignItems: "center" }}>
                 <IconButton icon={"ruler-square"} size={25} />
                 <Typo xs>{item.houseSize} sqft</Typo>
               </View>
-              <View style={{alignItems:'center'}}>
+              <View style={{ alignItems: "center" }}>
                 <IconButton icon={"gender-male-female"} size={25} />
-                <Typo xs>{item.genderPreference}</Typo>
+                <Typo style={{textTransform:'capitalize'}} xs>{item.genderPreference}</Typo>
               </View>
             </View>
             <Divider
@@ -134,14 +134,14 @@ function PropertyDetailsScreen({navigation,route}){
                 marginVertical: 5,
               }}
             />
-            <Space space={6}/>
+            <Space space={6} />
             <Typo xl>About this property</Typo>
-            <Space space={5}/>
-            <Typo style={{lineHeight:22}} light grey xs>
+            <Space space={5} />
+            <Typo style={{ lineHeight: 22 }} light grey xs>
               {item.description}
             </Typo>
 
-            <Space space={15}/>
+            <Space space={15} />
             <Divider
               style={{
                 borderBottomWidth: 3,
@@ -150,10 +150,13 @@ function PropertyDetailsScreen({navigation,route}){
                 marginTop: 5,
               }}
             />
-            <Space space={15}/>
+            <Space space={15} />
 
-            <View style={{flex:1}}>
-            <FullButton color={Theme.primaryColor} label={`Join Sharing Session ${item.sharing.length}/3`} />
+            <View style={{ flex: 1 }}>
+              <FullButton
+                color={Theme.primaryColor}
+                label={`Join Sharing Session ${item.sharing.length}/3`}
+              />
             </View>
 
             <Space space={5} />
@@ -162,7 +165,7 @@ function PropertyDetailsScreen({navigation,route}){
             </Typo>
           </Card>
         </KeyboardAwareScrollView>
-          <Space space={25}/>
+        <Space space={25} />
       </View>
     );}
 export default PropertyDetailsScreen;
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
   cardWrapper: {
     borderRadius: 15,
     backgroundColor: "#ffffff",
-    margin: 4,
+    margin: 10,
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
@@ -182,8 +185,8 @@ const styles = StyleSheet.create({
   info: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft:5,
-    width:'100%',
+    marginLeft: 5,
+    width: "100%",
   },
   avatar: {
     height: 40,
@@ -197,10 +200,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     borderRadius: 15,
   },
-  titleArea:{
-    flexDirection:'row',
-    justifyContent:'space-between',
-    alignItems:'center',
-    marginTop:15,
-  }
+  titleArea: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 15,
+  },
 });

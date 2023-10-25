@@ -98,14 +98,14 @@ function PostCard({postedBy,item}){
         </Typo>
         <Space space={8} />
         <Typo xs grey>
-          {item.availability}
+          Available from {item.availability}
         </Typo>
         <Space space={8} />
         <Typo l>${item.price} / mo</Typo>
         <Space space={5} />
 
         <View style={[styles.titleArea, { marginTop: 0 }]}>
-          <Typo xs light>
+          <Typo xs light style={{textTransform:'uppercase'}}>
             {item.propertyType} Built : {item.builtDate}
           </Typo>
           <Typo xs light>
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 15,
     backgroundColor: "#ffffff",
-    margin: 4,
+    margin: 10,
     alignItems: "center", justifyContent: "center" ,
     padding:10
   },

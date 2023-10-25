@@ -3,7 +3,19 @@ import { StyleSheet } from "react-native";
 import { TextInput } from "react-native-paper";
 import Theme from "../src/Theme";
 
-function InputBox({disabled, onChangeText, value,label,keyboardType ,right,secureTextEntry}) {
+function InputBox({
+  disabled,
+  onChangeText,
+  value,
+  label,
+  keyboardType,
+  right,
+  secureTextEntry,
+  left,
+  maxLength,
+  editable,
+  multiline
+}) {
   return (
     <TextInput
       onChangeText={onChangeText}
@@ -17,7 +29,10 @@ function InputBox({disabled, onChangeText, value,label,keyboardType ,right,secur
       right={right}
       secureTextEntry={secureTextEntry}
       disabled={disabled ? disabled : false}
-      multiline={true}
+      left={left}
+      maxLength={maxLength}
+      editable={editable}
+      multiline={multiline}
     />
   );
 }
