@@ -93,7 +93,7 @@ function SearchScreen({ navigation }) {
             data={filteredUsers}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
-              <UserCard key={index} user={item} />
+              <UserCard index={index} user={item} />
             )}
           />
         )}
@@ -108,10 +108,10 @@ export default SearchScreen;
 
 
 
-const UserCard = ({ user }) => {
+const UserCard = ({ user,index }) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity onPress={()=>navigation.navigate("PublicProfileViewScreen",{
+    <TouchableOpacity key={index} onPress={()=>navigation.navigate("PublicProfileViewScreen",{
       user:user
     })} style={styles.cardContainer}>
       <Image source={{ uri: user.userProfilePic }} style={styles.profilePic} />
@@ -142,7 +142,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width:'100%',
     backgroundColor:'white',
-    borderRadius:15
+    borderRadius:15,
+    marginBottom:10
   },
   profilePic: {
     width: 50,

@@ -86,7 +86,11 @@ function SignupScreen({navigation}){
 
           await setDoc(doc(usersRef, user.uid), userDoc);
           setUserID(user.uid);
-          Alert.alert("Sign up successful", user.uid);
+          Alert.alert(
+            "Account Created Successfully",
+            "Please Login with your credentials."
+          );
+          navigation.navigate("LoginScreen")
         } catch (err) {
           setLabel(err.message);
           setVisible(true);

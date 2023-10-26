@@ -15,9 +15,10 @@ import Space from "../components/Space";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FullButton from "../components/FullButton";
 import Theme from "../src/Theme";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import { FB_FIRESTORE } from "../config/firebase";
 import useStore from "../store";
+import FullButtonStroke from "../components/FullButtonStroke";
 
 function PropertyDetailsScreen({ navigation, route }) {
   const height = useWindowDimensions().width + 150;
@@ -77,6 +78,31 @@ function PropertyDetailsScreen({ navigation, route }) {
     }
   };
   
+
+  const handleAddSharing = async () => {
+    const userRef = doc(FB_FIRESTORE, "properties", item.id);
+  
+    // Check if userID exists in the "sharing" array, and add it if it doesn't exist
+    try {
+      const docSnapshot = await getDoc(userRef);
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        if (data.sharing.includes(userID)) {
+          // userID already exists in the "sharing" array, no need to add it
+          console.log('User already in the sharing array');
+        } else {
+          // Add userID to the "sharing" array
+          await updateDoc(userRef, {
+            sharing: arrayUnion(userID),
+          });
+          navigation.navigate("MainTab")
+          Alert.alert("You are now enrolled!")
+        }
+      }
+    } catch (error) {
+      console.error('Error checking or adding user to sharing array:', error);
+    }
+  };
   
 
 
@@ -224,10 +250,19 @@ function PropertyDetailsScreen({ navigation, route }) {
           <Space space={15} />
 
           <View style={{ flex: 1 }}>
-            <FullButton
-              color={Theme.primaryColor}
-              label={`Join Sharing Session ${item.sharing.length}/3`}
-            />
+            {item.postedBy === userID || item.sharing.includes(userID) ? (
+              <FullButtonStroke
+                disabled={true}
+                color={Theme.primaryColor}
+                label={`Join Sharing Session ${item.sharing.length}/3`}
+              />
+            ) : (
+              <FullButton
+                handlePress={()=>handleAddSharing()}
+                color={Theme.primaryColor}
+                label={`Join Sharing Session ${item.sharing.length}/3`}
+              />
+            )}
           </View>
 
           <Space space={5} />

@@ -78,23 +78,23 @@ function ProfileScreen({navigation}){
         </Appbar.Header>
         <View style={styles.contentContainer}>
           <View style={styles.avatarHolder}>
-          <Avatar.Image
-            style={{ elevation: 10 }}
-            source={{uri:userData?.userProfilePic}}
-            size={90}
-          />
+            <Avatar.Image
+              style={{ elevation: 10 }}
+              source={{ uri: userData?.userProfilePic }}
+              size={90}
+            />
           </View>
           <View style={styles.rightHolder}>
-          <View style={styles.userDataContaienr}>
+            <View style={styles.userDataContaienr}>
               <View style={{ alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                {profileStats !==null ? profileStats : "0"}
+                  {profileStats !== null ? profileStats : "0"}
                 </Text>
                 <Caption style={{ marginTop: -5 }}>Posts</Caption>
               </View>
               <View style={{ alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-               {userData?.rating}
+                  {userData?.rating}
                 </Text>
                 <Caption style={{ marginTop: -5 }}>Rating</Caption>
               </View>
@@ -103,12 +103,12 @@ function ProfileScreen({navigation}){
                 <Caption style={{ marginTop: -5 }}>Completed</Caption>
               </View>
             </View>
-            <Space space={10}/>
+            <Space space={10} />
             <Button
               mode="contained"
               labelStyle={{ color: "white" }}
               style={{ marginHorizontal: 20 }}
-              onPress={()=>navigation.navigate("EditProfileScreen")}
+              onPress={() => navigation.navigate("EditProfileScreen")}
             >
               Edit profile
             </Button>
@@ -116,41 +116,42 @@ function ProfileScreen({navigation}){
         </View>
 
         <View style={styles.bioholder}>
-        <Text style={{ fontWeight: "bold", fontSize: 16 }}>{userData?.userName}</Text>
-        <Text style={{ fontSize: 14 }}>{userData?.userBio}</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 18 }}>
+            {userData?.userName}
+          </Text>
+          <Text style={{ fontSize: 16 }}>{userData?.userBio}</Text>
         </View>
         <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: "#84a59d",
-          tabBarInactiveTintColor: "gray",
-          tabBarShowLabel: false,
-          tabBarShowIcon: true,
-          tabBarIndicatorStyle: {
-            height: 2,
-            backgroundColor: "#84a59d",
-          },
-        }}
-      >
-        <Tab.Screen
-          name="Posts"
-          options={{
-            tabBarIcon: ({ color, size, focused }) => (
-              <MaterialIcons name="grid-on" size={22} color={color} />
-            ),
+          screenOptions={{
+            tabBarActiveTintColor: "#84a59d",
+            tabBarInactiveTintColor: "gray",
+            tabBarShowLabel: false,
+            tabBarShowIcon: true,
+            tabBarIndicatorStyle: {
+              height: 2,
+              backgroundColor: "#84a59d",
+            },
           }}
-          component={PostsScreen}
-        />
-        <Tab.Screen
-          name="TaggedPosts"
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="bookmark-border" size={24} color={color} />
-            ),
-          }}
-          component={PostsTaggedScreen}
-        />
-      </Tab.Navigator>
-
+        >
+          <Tab.Screen
+            name="Posts"
+            options={{
+              tabBarIcon: ({ color, size, focused }) => (
+                <MaterialIcons name="grid-on" size={22} color={color} />
+              ),
+            }}
+            component={PostsScreen}
+          />
+          <Tab.Screen
+            name="TaggedPosts"
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <MaterialIcons name="bookmark-border" size={24} color={color} />
+              ),
+            }}
+            component={PostsTaggedScreen}
+          />
+        </Tab.Navigator>
       </View>
     );}
 export default ProfileScreen;

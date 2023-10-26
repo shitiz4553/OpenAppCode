@@ -7,13 +7,14 @@ import {
 } from "react-native";
 import Theme from "../src/Theme";
 
-function FullButtonStroke({color,label,handlePress}){
+function FullButtonStroke({color,label,handlePress,disabled}){
     return (
       <TouchableOpacity
+        disabled={disabled ? disabled : false}
         onPress={handlePress}
-        style={[styles.container, { borderWidth:1,borderColor: color }]}
+        style={[styles.container, { borderWidth: 1, borderColor: color }]}
       >
-        <Text style={[styles.text,{color:color}]}>{label}</Text>
+        <Text style={[styles.text, { color: color }]}>{label}</Text>
       </TouchableOpacity>
     );}
 export default FullButtonStroke;

@@ -4,14 +4,17 @@ import {
     Text,
     StyleSheet,
     Image,
+    Alert,
 } from "react-native";
 import { Appbar, Avatar, Button, Caption, MD2Colors } from "react-native-paper";
 import assets from "../assets/assets";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { MaterialIcons } from "@expo/vector-icons";
-import useStore from "../store";
-import PostsTab from "../components/PostsTab";
+import { MaterialIcons,MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import PublicPostsTab from "../components/PublicPostsTab";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { FB_FIRESTORE } from "../config/firebase";
+import useStore from "../store";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -19,6 +22,36 @@ const Tab = createMaterialTopTabNavigator();
 function PublicProfileViewScreen({navigation,route}){
 
   const {user} = route.params;
+  const userID = useStore((state) => state.userID);
+
+  const handleCreateConversation = async (userID, otherUserID) => {
+    const conversationsRef = collection(FB_FIRESTORE, "conversations");
+  
+    const conversationsQuery = query(conversationsRef, where("participants", "array-contains", userID));
+    const conversationsSnapshot = await getDocs(conversationsQuery);
+  
+    let existingConversationID = null;
+  
+    conversationsSnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.participants.includes(otherUserID)) {
+        existingConversationID = doc.id;
+      }
+    });
+  
+    if (existingConversationID) {
+    navigation.navigate("ConversationScreen")
+    } else {
+      // If no existing conversation is found, create a new conversation
+      const newConversationRef = await addDoc(conversationsRef, {
+        participants: [userID, otherUserID],
+      });
+  
+      const newConversationID = newConversationRef.id;
+      navigation.navigate("ConversationScreen")
+      console.log("Created a new conversation with the id",newConversationID)
+    }
+  };
 
 
     return (
@@ -43,7 +76,18 @@ function PublicProfileViewScreen({navigation,route}){
             onPress={() => navigation.goBack()}
           />
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
-          <Appbar.Action />
+          <Appbar.Action
+            icon={() => {
+              return (
+                <MaterialCommunityIcons
+                  name="message-plus-outline"
+                  size={24}
+                  color="black"
+                />
+              );
+            }}
+             onPress={() => handleCreateConversation(userID, user.userID)}
+          />
         </Appbar.Header>
         <View style={styles.contentContainer}>
           <View style={styles.avatarHolder}>
@@ -85,6 +129,7 @@ function PublicProfileViewScreen({navigation,route}){
               ),
             }}
             component={PostsScreen}
+            initialParams={{ user: user }}
           />
         </Tab.Navigator>
       </View>
@@ -120,8 +165,10 @@ const styles = StyleSheet.create({
 });
 
 
-const PostsScreen = () => {
+
+const PostsScreen = ({ route }) => {
+  const { user } = route.params;
     return(
-      <PostsTab />
+      <PublicPostsTab userID={user.userID}/>
     )
 }

@@ -35,7 +35,7 @@ function HomeScreen({navigation}){
     const docRef = doc(FB_FIRESTORE, "users", userID);
   
     try {
-      // Set up a real-time listener
+      // Set up a real-time listener using onSnapshot
       onSnapshot(docRef, (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
@@ -45,39 +45,48 @@ function HomeScreen({navigation}){
           console.log("Document does not exist!");
         }
       });
-
-      setLoading(false);
-      
+  
+      setLoading(false); // This line is executed immediately, not after the listener is set up.
+  
     } catch (error) {
       console.error("Error fetching document:", error);
       setLoading(false);
     }
   };
+  
 
 
-  const fetchDataProperty = async () => {
+  const fetchDataProperty = () => {
     setLoading(true);
     const docRef = collection(FB_FIRESTORE, "properties");
-    const querySnapshot = await getDocs(docRef);
-
-    const propertiesArray = [];
-
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      // Include the document ID in the data
-      data.id = doc.id;
-      propertiesArray.push(data);
-    });
-
-    // Now, propertiesArray contains all documents with their IDs
-    console.log(propertiesArray); // This will log the array of properties with IDs
-    setPropertyData(propertiesArray);
-
-    // Call the function with propertyData and userID
-    filterAndLogPosts(propertyData, userID);
-
-    setLoading(false);
+  
+    try {
+      // Set up a real-time listener using onSnapshot
+      onSnapshot(docRef, (querySnapshot) => {
+        const propertiesArray = [];
+  
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          // Include the document ID in the data
+          data.id = doc.id;
+          propertiesArray.push(data);
+        });
+  
+        // Now, propertiesArray contains all documents with their IDs
+        console.log(propertiesArray); // This will log the array of properties with IDs
+        setPropertyData(propertiesArray);
+  
+        // Call the function with propertyData and userID
+        filterAndLogPosts(propertiesArray, userID);
+  
+        setLoading(false);
+      });
+    } catch (error) {
+      console.error("Error fetching properties:", error);
+      setLoading(false);
+    }
   };
+
   
   useEffect(() => {
     filterAndLogPosts(propertyData, userID);
@@ -112,13 +121,6 @@ function HomeScreen({navigation}){
             }}
             onPress={() => navigation.navigate("CLStepOne")}
           />
-
-          {/* <Appbar.Action
-          icon={() => {
-            return <Feather name="camera" size={24} color="black" />;
-          }}
-          onPress={() => navigation.navigate("StoryScreen")}
-          /> */}
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
           <Appbar.Action
             icon={() => {
@@ -130,7 +132,7 @@ function HomeScreen({navigation}){
                 />
               );
             }}
-            onPress={() => navigation.navigate("ChatScreen")}
+            onPress={() => navigation.navigate("ConversationScreen")}
           />
         </Appbar.Header>
 
