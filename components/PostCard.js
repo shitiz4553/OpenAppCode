@@ -61,20 +61,25 @@ function PostCard({postedBy,item}){
 
     return (
       <Card style={[styles.container, styles.elevation]}>
-        <TouchableOpacity style={styles.info}>
-          <Image
-            source={{ uri: av?.userProfilePic }}
-            style={styles.avatar}
-          />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("PublicProfileViewScreen", {
+              user: av,
+            })
+          }
+          style={styles.info}
+        >
+          <Image source={{ uri: av?.userProfilePic }} style={styles.avatar} />
           <Typo>{av?.userName}</Typo>
         </TouchableOpacity>
         <Space space={10} />
         <TouchableOpacity
-          onPress={() => navigation.navigate("PropertyDetailsScreen",{
-            item:item,
-            av:av,
-            formattedDate:formattedDate
-          })}
+          onPress={() =>
+            navigation.navigate("PropertyDetailsScreen", {
+              item: item,
+              av: av,
+            })
+          }
         >
           <Card.Cover
             source={{
@@ -87,14 +92,11 @@ function PostCard({postedBy,item}){
           <View style={{ width: "80%" }}>
             <Typo style={{ fontSize: 20 }}>{item.propertyName}</Typo>
           </View>
-          <TouchableOpacity>
-            <Ionicons name="bookmark" size={24} color="black" />
-          </TouchableOpacity>
         </View>
 
         <Space space={8} />
         <Typo s light>
-        {item.propertyLocation}
+          {item.propertyLocation}
         </Typo>
         <Space space={8} />
         <Typo xs grey>
@@ -105,7 +107,7 @@ function PostCard({postedBy,item}){
         <Space space={5} />
 
         <View style={[styles.titleArea, { marginTop: 0 }]}>
-          <Typo xs light style={{textTransform:'uppercase'}}>
+          <Typo xs light style={{ textTransform: "uppercase" }}>
             {item.propertyType} Built : {item.builtDate}
           </Typo>
           <Typo xs light>

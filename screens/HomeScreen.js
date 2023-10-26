@@ -22,6 +22,7 @@ function HomeScreen({navigation}){
   const userID = useStore((state) => state.userID);
   const setPropertyData = useStore((state) => state.setPropertyData);
   const propertyData = useStore((state) => state.propertyData);
+  const setProfileStats = useStore((state) => state.setProfileStats);
   const [loading,setLoading] = useState(true)
 
 
@@ -58,24 +59,41 @@ function HomeScreen({navigation}){
     setLoading(true);
     const docRef = collection(FB_FIRESTORE, "properties");
     const querySnapshot = await getDocs(docRef);
-  
+
     const propertiesArray = [];
-  
+
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       // Include the document ID in the data
       data.id = doc.id;
       propertiesArray.push(data);
     });
-  
+
     // Now, propertiesArray contains all documents with their IDs
     console.log(propertiesArray); // This will log the array of properties with IDs
     setPropertyData(propertiesArray);
+
+    // Call the function with propertyData and userID
+    filterAndLogPosts(propertyData, userID);
+
     setLoading(false);
   };
   
+  useEffect(() => {
+    filterAndLogPosts(propertyData, userID);
+  }, [propertyData, userID]);
   
-  
+  function filterAndLogPosts(propertyData, userID) {
+    if (propertyData && Array.isArray(propertyData)) {
+      const userPosts = propertyData.filter(item => item.postedBy === userID);
+      console.log(`Total posts by user ${userID}: ${userPosts.length}`);
+      setProfileStats(userPosts.length)
+    } else {
+      console.log("propertyData is not available or not an array.");
+    }
+  }
+
+ 
 
 
     return (
@@ -116,28 +134,23 @@ function HomeScreen({navigation}){
           />
         </Appbar.Header>
 
-       {
-        loading ?
-        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-          <ActivityIndicator  size={'large'}/>
-        </View>
-        :
-        <ScrollView>
-          {propertyData?.map((item,index) => {
-          return (
-            <PostCard
-            key={index}
-            postedBy={item.postedBy}
-            item={item}
-            />
-            );
+        {loading ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator size={"large"} />
+          </View>
+        ) : (
+          <ScrollView>
+            {propertyData?.map((item, index) => {
+              return (
+                <PostCard key={index} postedBy={item.postedBy} item={item} />
+              );
             })}
-       
 
-        <Space space={100}/>
-        </ScrollView>
-       }
-      
+            <Space space={100} />
+          </ScrollView>
+        )}
       </View>
     );}
 export default HomeScreen;

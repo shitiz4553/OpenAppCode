@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { 
     View,
     Image,
     StyleSheet,
     TouchableOpacity,
-    useWindowDimensions
+    useWindowDimensions,
+    Alert
 } from "react-native";
-import { Appbar, Card, Divider, IconButton, MD2Colors, Paragraph } from "react-native-paper";
+import { ActivityIndicator, Appbar, Card, Divider, IconButton, MD2Colors, Paragraph } from "react-native-paper";
 import assets from "../assets/assets";
 import { Ionicons } from '@expo/vector-icons';
 import Typo from "../components/Typo";
@@ -14,160 +15,237 @@ import Space from "../components/Space";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FullButton from "../components/FullButton";
 import Theme from "../src/Theme";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { FB_FIRESTORE } from "../config/firebase";
+import useStore from "../store";
 
-function PropertyDetailsScreen({navigation,route}){
+function PropertyDetailsScreen({ navigation, route }) {
+  const height = useWindowDimensions().width + 150;
+  const { item, av } = route.params;
+  const userID = useStore((state) => state.userID);
+  const userData = useStore((state) => state.userData);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [loading,setLoading] = useState(false)
+
+  useEffect(() => {
+    // Check if the item is bookmarked when the component mounts
+    if (userData && userData.bookmarks) {
+      const isItemBookmarked = userData.bookmarks.includes(item.id);
+      setIsBookmarked(isItemBookmarked);
+    }
+  }, [userData, item]);
+
+  const firestoreTimestamp = item.postedDate;
+  const seconds = firestoreTimestamp.seconds;
+  const nanoseconds = firestoreTimestamp.nanoseconds;
+
+  const dateObject = new Date(seconds * 1000 + nanoseconds / 1000000);
+  const formattedDate = dateObject.toDateString();
+
+  
+  const toggleBookMark = async (itemID) => {
+    const userRef = doc(FB_FIRESTORE, "users", userID);
+    setLoading(true);
+    try {
+      // First, get the current user document data.
+      const userSnapshot = await getDoc(userRef);
+      const userData = userSnapshot.data();
+  
+      // Check if the 'bookmarks' key exists in the user data. If not, create an empty array.
+      if (!userData.bookmarks) {
+        userData.bookmarks = [];
+      }
+  
+      // Check if the 'itemID' is already in the 'bookmarks' array.
+      const index = userData.bookmarks.indexOf(itemID);
+  
+      if (index === -1) {
+        // If 'itemID' is not in the 'bookmarks' array, add it.
+        userData.bookmarks.push(itemID);
+      } else {
+        // If 'itemID' is in the 'bookmarks' array, remove it.
+        userData.bookmarks.splice(index, 1);
+      }
+  
+      // Update the user document with the modified 'bookmarks' array.
+      await updateDoc(userRef, userData);
+      Alert.alert("Bookarks Updated Successfully!")
+      setLoading(false);
+    } catch (error) {
+      console.error("Error toggling item in bookmarks:", error);
+      setLoading(false);
+    }
+  };
+  
+  
 
 
-    const height =  useWindowDimensions().width + 150
-    const {item,av,formattedDate} = route.params
-
-
-    return (
-      <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
-        <Appbar.Header
-          style={{
-            backgroundColor: "#fff0",
-            justifyContent: "space-between",
-            elevation: 0,
+  return (
+    <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
+      <Appbar.Header
+        style={{
+          backgroundColor: "#fff0",
+          justifyContent: "space-between",
+          elevation: 0,
+        }}
+      >
+        <Appbar.Action
+          icon={() => {
+            return (
+              <Ionicons
+                name="ios-chevron-back-outline"
+                size={24}
+                color="black"
+              />
+            );
           }}
-        >
-          <Appbar.Action
-            icon={() => {
-              return (
-                <Ionicons
-                  name="ios-chevron-back-outline"
-                  size={24}
-                  color="black"
-                />
-              );
+          onPress={() => navigation.goBack()}
+        />
+        <Image source={assets.logo} style={{ height: 25, width: 160 }} />
+        <Appbar.Action />
+      </Appbar.Header>
+
+      <KeyboardAwareScrollView
+        resetScrollToCoords={{ x: 30, y: 0 }}
+        scrollEnabled={true}
+      >
+        <Card style={[styles.cardWrapper, styles.elevation]}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("PublicProfileViewScreen", {
+                user: av,
+              })
+            }
+            style={styles.info}
+          >
+            <Image
+              source={{
+                uri: av?.userProfilePic,
+              }}
+              style={styles.avatar}
+            />
+            <Typo>{av?.userName}</Typo>
+          </TouchableOpacity>
+          <Space space={10} />
+          <View>
+            <Card.Cover
+              source={{
+                uri: item.propertyImage,
+              }}
+              style={[styles.cardCover, { height: height }]}
+            />
+          </View>
+          <View style={styles.titleArea}>
+            <View style={{ width: "80%" }}>
+              <Typo style={{ fontSize: 20 }}>{item.propertyName}</Typo>
+            </View>
+            <TouchableOpacity onPress={() => toggleBookMark(item.id)}>
+              <Ionicons
+                name={isBookmarked ? "bookmark" : "bookmark-outline"}
+                size={24}
+                color="black"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <Space space={8} />
+          <Typo s light>
+            {item.propertyLocation}
+          </Typo>
+          <Space space={8} />
+          <Typo xs light>
+            {item.nearby}
+          </Typo>
+          <Space space={8} />
+          <Typo xs light style={{ textTransform: "uppercase" }}>
+            {item.propertyType} Built : {item.builtDate}
+          </Typo>
+          <Space space={8} />
+          <Typo xl>${item.price} / mo</Typo>
+          <Space space={5} />
+          <Typo xs light>
+            Available From {item.availability}
+          </Typo>
+
+          <Divider
+            style={{
+              borderBottomWidth: 3,
+              borderRadius: 5,
+              borderColor: "grey",
+              marginTop: 5,
             }}
-            onPress={() => navigation.goBack()}
           />
-          <Image source={assets.logo} style={{ height: 25, width: 160 }} />
-          <Appbar.Action />
-        </Appbar.Header>
-
-        <KeyboardAwareScrollView
-          resetScrollToCoords={{ x: 30, y: 0 }}
-          scrollEnabled={true}
-        >
-          <Card style={[styles.cardWrapper, styles.elevation]}>
-            <View style={styles.info}>
-              <Image
-                source={{
-                  uri: av?.userProfilePic,
-                }}
-                style={styles.avatar}
-              />
-              <Typo>{av?.userName}</Typo>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <View style={{ alignItems: "center" }}>
+              <IconButton icon={"bed"} size={25} />
+              <Typo xs> {item.room} Room</Typo>
             </View>
-            <Space space={10} />
-            <View>
-              <Card.Cover
-                source={{
-                  uri: item.propertyImage,
-                }}
-                style={[styles.cardCover, { height: height }]}
-              />
+            <View style={{ alignItems: "center" }}>
+              <IconButton icon={"toilet"} size={25} />
+              <Typo xs>{item.bathroom} Bathroom</Typo>
             </View>
-            <View style={styles.titleArea}>
-              <View style={{ width: "80%" }}>
-                <Typo style={{ fontSize: 20 }}>{item.propertyName}</Typo>
-              </View>
-              <TouchableOpacity>
-                <Ionicons name="bookmark" size={24} color="black" />
-              </TouchableOpacity>
+            <View style={{ alignItems: "center" }}>
+              <IconButton icon={"ruler-square"} size={25} />
+              <Typo xs>{item.houseSize} sqft</Typo>
             </View>
+            <View style={{ alignItems: "center" }}>
+              <IconButton icon={"gender-male-female"} size={25} />
+              <Typo style={{ textTransform: "capitalize" }} xs>
+                {item.genderPreference}
+              </Typo>
+            </View>
+          </View>
+          <Divider
+            style={{
+              borderBottomWidth: 3,
+              borderRadius: 5,
+              borderColor: "grey",
+              marginVertical: 5,
+            }}
+          />
+          <Space space={6} />
+          <Typo xl>About this property</Typo>
+          <Space space={5} />
+          <Typo style={{ lineHeight: 22 }} light grey xs>
+            {item.description}
+          </Typo>
 
-            <Space space={8} />
-            <Typo s light>
-              {item.propertyLocation}
-            </Typo>
-            <Space space={8} />
-            <Typo xs light>
-              {item.nearby}
-            </Typo>
-            <Space space={8} />
-            <Typo xs light style={{textTransform:'uppercase'}}>
-              {item.propertyType} Built : {item.builtDate}
-            </Typo>
-            <Space space={8} />
-            <Typo xl>${item.price} / mo</Typo>
-            <Space space={5} />
-            <Typo xs light>
-             Available From {item.availability}
-            </Typo>
+          <Space space={15} />
+          <Divider
+            style={{
+              borderBottomWidth: 3,
+              borderRadius: 5,
+              borderColor: "grey",
+              marginTop: 5,
+            }}
+          />
+          <Space space={15} />
 
-            <Divider
-              style={{
-                borderBottomWidth: 3,
-                borderRadius: 5,
-                borderColor: "grey",
-                marginTop: 5,
-              }}
+          <View style={{ flex: 1 }}>
+            <FullButton
+              color={Theme.primaryColor}
+              label={`Join Sharing Session ${item.sharing.length}/3`}
             />
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <View style={{ alignItems: "center" }}>
-                <IconButton icon={"bed"} size={25} />
-                <Typo xs> {item.room} Room</Typo>
-              </View>
-              <View style={{ alignItems: "center" }}>
-                <IconButton icon={"toilet"} size={25} />
-                <Typo xs>{item.bathroom} Bathroom</Typo>
-              </View>
-              <View style={{ alignItems: "center" }}>
-                <IconButton icon={"ruler-square"} size={25} />
-                <Typo xs>{item.houseSize} sqft</Typo>
-              </View>
-              <View style={{ alignItems: "center" }}>
-                <IconButton icon={"gender-male-female"} size={25} />
-                <Typo style={{textTransform:'capitalize'}} xs>{item.genderPreference}</Typo>
-              </View>
-            </View>
-            <Divider
-              style={{
-                borderBottomWidth: 3,
-                borderRadius: 5,
-                borderColor: "grey",
-                marginVertical: 5,
-              }}
-            />
-            <Space space={6} />
-            <Typo xl>About this property</Typo>
-            <Space space={5} />
-            <Typo style={{ lineHeight: 22 }} light grey xs>
-              {item.description}
-            </Typo>
+          </View>
 
-            <Space space={15} />
-            <Divider
-              style={{
-                borderBottomWidth: 3,
-                borderRadius: 5,
-                borderColor: "grey",
-                marginTop: 5,
-              }}
-            />
-            <Space space={15} />
+          <Space space={5} />
+          <Typo center xs grey bold>
+            This Ad Was Posted on : {formattedDate}
+          </Typo>
+        </Card>
+      </KeyboardAwareScrollView>
+      <Space space={25} />
 
-            <View style={{ flex: 1 }}>
-              <FullButton
-                color={Theme.primaryColor}
-                label={`Join Sharing Session ${item.sharing.length}/3`}
-              />
-            </View>
-
-            <Space space={5} />
-            <Typo center xs grey bold>
-              This Ad Was Posted on : {formattedDate}
-            </Typo>
-          </Card>
-        </KeyboardAwareScrollView>
-        <Space space={25} />
-      </View>
-    );}
+      {loading ? (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator color={"white"} size={"large"} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
 export default PropertyDetailsScreen;
 
 const styles = StyleSheet.create({
@@ -206,4 +284,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 15,
   },
+  loadingOverlay:{
+    flex:1,
+    position:'absolute',
+    top:0,
+    left:0,
+    bottom:0,
+    right:0,
+    zIndex:1,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'rgba(0,0,0,0.5)'
+  }
 });

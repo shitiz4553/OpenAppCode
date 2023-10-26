@@ -19,6 +19,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import PropertyDetailsScreen from '../screens/PropertyDetailsScreen';
 import CLStepOne from '../screens/CreateListing/CLStepOne';
 import CLStepTwo from '../screens/CreateListing/CLStepTwo';
+import PublicProfileViewScreen from '../screens/PublicProfileViewScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -75,6 +76,7 @@ export default function MyStack() {
         <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
         <Stack.Screen name="CLStepOne" component={CLStepOne} />
         <Stack.Screen name="CLStepTwo" component={CLStepTwo} />
+        <Stack.Screen name="PublicProfileViewScreen" component={PublicProfileViewScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

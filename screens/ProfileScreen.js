@@ -15,6 +15,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import useStore from "../store";
 import { FB_AUTH } from "../config/firebase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PostsTab from "../components/PostsTab";
+import BookMarksTab from "../components/BookMarksTab";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -23,7 +25,7 @@ function ProfileScreen({navigation}){
 
   const userData = useStore((state) => state.userData);
   const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
-  const isLoggedIn = useStore((state) => state.isLoggedIn);
+  const profileStats = useStore((state) => state.profileStats);
 
 
   const handleLogout = async () => {
@@ -86,7 +88,7 @@ function ProfileScreen({navigation}){
           <View style={styles.userDataContaienr}>
               <View style={{ alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                0
+                {profileStats !==null ? profileStats : "0"}
                 </Text>
                 <Caption style={{ marginTop: -5 }}>Posts</Caption>
               </View>
@@ -184,13 +186,15 @@ const styles = StyleSheet.create({
 });
 
 
-const PostsScreen = () =>{
+const PostsScreen = () => {
     return(
-        null
+      <PostsTab />
     )
 }
+
+
 const PostsTaggedScreen = () =>{
     return(
-        null
+        <BookMarksTab/>
     )
 }
