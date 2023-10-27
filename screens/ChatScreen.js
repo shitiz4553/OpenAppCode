@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
+  Image,
   Keyboard,
   Alert,
   ScrollView,
@@ -94,7 +94,7 @@ useEffect(() => {
       behavior={Platform.OS === "ios" ? "padding" : null}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -500}
     >
-      <View style={{flex:1,}} onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <Appbar.Header
             style={{
@@ -115,7 +115,16 @@ useEffect(() => {
               onPress={() => navigation.goBack()}
             />
             <View style={{ alignItems: "center" }}>
-              <Typo l>{otherIDData[0]?.userName}</Typo>
+              <Typo l>
+                {otherIDData.length <= 1
+                  ? otherIDData[0]?.userName
+                  : otherIDData.map((item, index) =>
+                      index === otherIDData.length - 1
+                        ? item.userName
+                        : `${item.userName}, `
+                    )}
+              </Typo>
+
               <Typo xs grey>
                 Chatting With
               </Typo>
@@ -123,9 +132,8 @@ useEffect(() => {
             <Appbar.Action />
           </Appbar.Header>
 
-       
-           <View style={{flex:1,paddingHorizontal:5}}>
-           <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{ flex: 1, padding: 8 }}>
+            <ScrollView showsVerticalScrollIndicator={false}>
               {chats &&
                 chats.map((chat, index) => {
                   return (
@@ -135,11 +143,12 @@ useEffect(() => {
                       sentBy={chat.sentBy}
                       userID={userID}
                       timestamp={chat.timestamp}
+                      otherIDData={otherIDData}
                     />
                   );
                 })}
             </ScrollView>
-           </View>
+          </View>
 
           <View style={styles.inputWrapper}>
             <TextInput
@@ -160,19 +169,37 @@ useEffect(() => {
 
 
 // Create a ChatBubble component for displaying messages
-function ChatBubble({ message, sentBy,userID,timestamp }) {
-    return (
-      <View style={sentBy === userID ? styles.userBubble : styles.otherBubble}>
-        <Typo s style={{ color: sentBy === userID ? "white" : "black" }}>
-          {message}
-        </Typo>
-        <Typo xs grey>
-          {new Date(timestamp).toLocaleTimeString()}{" "}
-          {/* Format the timestamp as needed */}
-        </Typo>
+function ChatBubble({ message, sentBy, userID, timestamp, otherIDData }) {
+
+
+  const userObject = otherIDData.find(data => data.userID === sentBy);
+
+  // Check if a matching user object was found and get their profile picture
+  const userProfilePic = userObject ? userObject.userProfilePic : null ;
+  const userName = userObject ? userObject.userName : null
+ 
+  return (
+    <View style={sentBy === userID ? styles.userBubble : styles.otherBubble}>
+      <View style={styles.chatContainer}>
+        {userProfilePic && (
+          <Image
+            source={{ uri: userProfilePic }}
+            style={styles.profilePic}
+          />
+        )
+        }
+        <View style={styles.messageContainer}>
+          <Typo s style={{ color: sentBy === userID ? "white" : "black" }}>
+            {message}
+          </Typo>
+          <Typo style={{fontSize:10}} grey>
+            {new Date(timestamp).toLocaleTimeString()} {userName ? `- ${userName}` : null}
+          </Typo>
+        </View>
       </View>
-    );
-  }
+    </View>
+  );
+}
 
 
 export default ChatScreen;
@@ -224,4 +251,15 @@ const styles = StyleSheet.create({
     margin: 5,
     maxWidth:'76%'
   },
+  chatContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    maxWidth: '80%', // Adjust the maximum width as needed
+  },
+  profilePic:{
+    height:25,
+    width:25,
+    borderRadius:100,
+    marginRight:10
+  }
 });

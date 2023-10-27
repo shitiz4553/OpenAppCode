@@ -194,6 +194,12 @@ function SignupScreen({navigation}){
             <Typo style={{ fontSize: 15, color: "#000" }}>{label}</Typo>
           </Banner>
         </KeyboardAwareScrollView>
+
+        {isLoading ? (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator color={"white"} size={"large"} />
+          </View>
+        ) : null}
       </View>
     );}
 export default SignupScreen;
@@ -227,5 +233,17 @@ const styles = StyleSheet.create({
   input:{
     width:'100%',
     height:45
+  },
+  loadingOverlay:{
+    flex:1,
+    position:'absolute',
+    top:0,
+    left:0,
+    bottom:0,
+    right:0,
+    zIndex:1,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'rgba(0,0,0,0.5)'
   }
 });
