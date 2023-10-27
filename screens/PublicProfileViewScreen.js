@@ -76,18 +76,22 @@ function PublicProfileViewScreen({navigation,route}){
             onPress={() => navigation.goBack()}
           />
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
-          <Appbar.Action
-            icon={() => {
-              return (
-                <MaterialCommunityIcons
-                  name="message-plus-outline"
-                  size={24}
-                  color="black"
-                />
-              );
-            }}
-             onPress={() => handleCreateConversation(userID, user.userID)}
-          />
+          {user.userID === userID ? (
+            <Appbar.Action />
+          ) : (
+            <Appbar.Action
+              icon={() => {
+                return (
+                  <MaterialCommunityIcons
+                    name="message-plus-outline"
+                    size={24}
+                    color="black"
+                  />
+                );
+              }}
+              onPress={() => handleCreateConversation(userID, user.userID)}
+            />
+          )}
         </Appbar.Header>
         <View style={styles.contentContainer}>
           <View style={styles.avatarHolder}>
