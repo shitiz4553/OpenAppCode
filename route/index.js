@@ -23,6 +23,7 @@ import PublicProfileViewScreen from '../screens/PublicProfileViewScreen';
 import ConversationScreen from '../screens/ConversationScreen';
 import ChatScreen from '../screens/ChatScreen';
 import EditPostScreen from '../screens/CreateListing/EditPostScreen';
+import RatingScreen from '../screens/RatingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -81,6 +82,7 @@ export default function MyStack() {
         <Stack.Screen name="CLStepTwo" component={CLStepTwo} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
         <Stack.Screen name="EditPostScreen" component={EditPostScreen} />
+        <Stack.Screen name="RatingScreen" component={RatingScreen} />
         <Stack.Screen name="ConversationScreen" component={ConversationScreen} />
         <Stack.Screen name="PublicProfileViewScreen" component={PublicProfileViewScreen} />
       </Stack.Navigator>

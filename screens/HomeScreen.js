@@ -105,6 +105,15 @@ function HomeScreen({navigation}){
 
  
 
+  const filterPropertyData = () => {
+    if (propertyData && Array.isArray(propertyData)) {
+      // Use the filter method to get items with sharing array less than 3
+      const filteredData = propertyData.filter((item) => item.sharing.length < 3);
+      return filteredData;
+    }
+    return [];
+  };
+
 
     return (
       <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
@@ -149,7 +158,8 @@ function HomeScreen({navigation}){
           </View>
         ) : (
           <ScrollView>
-            {propertyData && propertyData?.map((item, index) => {
+             {propertyData &&
+            filterPropertyData().map((item, index) => {
               return (
                 <PostCard key={index} postedBy={item.postedBy} item={item} />
               );

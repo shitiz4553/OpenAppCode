@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Appbar } from "react-native-paper";
 import Typo from "../components/Typo";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons ,AntDesign} from "@expo/vector-icons";
 import Theme from "../src/Theme";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { FB_FIRESTORE } from "../config/firebase";
@@ -86,8 +86,6 @@ useEffect(() => {
   };
 }, []);
 
-
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -129,7 +127,16 @@ useEffect(() => {
                 Chatting With
               </Typo>
             </View>
-            <Appbar.Action />
+            <Appbar.Action
+              icon={() => (
+                <AntDesign name="star" size={22} color="black" />
+              )}
+              onPress={() => navigation.navigate("RatingScreen",{
+                participants:item.participants,
+                otherIDData:otherIDData,
+                userID:userID
+              })}
+            />
           </Appbar.Header>
 
           <View style={{ flex: 1, padding: 8 }}>

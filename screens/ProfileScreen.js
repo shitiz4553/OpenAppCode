@@ -63,6 +63,17 @@ function ProfileScreen({navigation}){
   };
 
 
+  const calculateAverageRating = (ratings) => {
+    if (ratings && ratings.length > 0) {
+      const sumOfRatings = ratings.reduce((acc, curr) => acc + curr.rating, 0);
+      return (sumOfRatings / ratings.length).toFixed(1);
+    }
+    return "0"; // Return "0" as a string when there are no ratings
+  };
+  
+  // Usage:
+  const averageRating = calculateAverageRating(userData?.ratings);
+
     return (
       <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
         <Appbar.Header
@@ -94,7 +105,7 @@ function ProfileScreen({navigation}){
               </View>
               <View style={{ alignItems: "center" }}>
                 <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                  {userData?.rating}
+                  {averageRating}
                 </Text>
                 <Caption style={{ marginTop: -5 }}>Rating</Caption>
               </View>

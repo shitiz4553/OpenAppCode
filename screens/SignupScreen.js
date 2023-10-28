@@ -15,7 +15,7 @@ import FullButton from "../components/FullButton";
 import Space from "../components/Space";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import DropDown from "react-native-paper-dropdown";
-import { Banner, TextInput,MD2Colors } from "react-native-paper";
+import { Banner, TextInput,MD2Colors, ActivityIndicator } from "react-native-paper";
 import InputBox from "../components/InputBox";
 import FullButtonStroke from "../components/FullButtonStroke";
 import { FB_AUTH, FB_FIRESTORE } from "../config/firebase";
@@ -73,13 +73,13 @@ function SignupScreen({navigation}){
           const userRole = "user";
           const userName = Name 
           const userEmail = Email.toLowerCase()
-          const rating = 0
+          const ratings = []
           const userProfilePic = "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
           const userDoc = {
             userName,
             userEmail,
             userID,
-            rating,
+            ratings,
             userProfilePic,
             userRole,
           };

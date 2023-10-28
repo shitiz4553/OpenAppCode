@@ -15,7 +15,7 @@ import Space from "../components/Space";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FullButton from "../components/FullButton";
 import Theme from "../src/Theme";
-import { arrayUnion, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { FB_FIRESTORE } from "../config/firebase";
 import useStore from "../store";
 import FullButtonStroke from "../components/FullButtonStroke";
@@ -37,6 +37,7 @@ function PropertyDetailsScreen({ navigation, route }) {
       setIsBookmarked(isItemBookmarked);
     }
   }, [userData, item]);
+
 
   const firestoreTimestamp = item.postedDate;
   const seconds = firestoreTimestamp.seconds;
@@ -81,30 +82,61 @@ function PropertyDetailsScreen({ navigation, route }) {
   };
   
 
-  const handleAddSharing = async () => {
+  const handleAddSharing = async (postedBy) => {
     const userRef = doc(FB_FIRESTORE, "properties", item.id);
+    setLoading(true);
   
-    // Check if userID exists in the "sharing" array, and add it if it doesn't exist
     try {
       const docSnapshot = await getDoc(userRef);
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
-        if (data.sharing.includes(userID)) {
-          // userID already exists in the "sharing" array, no need to add it
+        const sharingArray = data.sharing || []; // Ensure we have an array to work with
+  
+        if (sharingArray.includes(userID)) {
+          // User already exists in the "sharing" array, no need to add it
           console.log('User already in the sharing array');
-        } else {
-          // Add userID to the "sharing" array
+        } else if (sharingArray.length === 2) {
+          // The array currently has 2 members, add the third and show the alert
+          sharingArray.push(userID); // Add the user to the array
           await updateDoc(userRef, {
-            sharing: arrayUnion(userID),
+            sharing: sharingArray,
           });
+  
+          // Display the alert for the third person
+          Alert.alert(
+            "You are now enrolled",
+            "A conversation has now been initiated with all the shared participants."
+          );
+
+          const conversationsRef = collection(FB_FIRESTORE, "conversations");
+
+          const participants = [...sharingArray, postedBy];
+
+          await addDoc(conversationsRef, {
+            participants: participants,
+          });  
+          navigation.navigate("ConversationScreen")
+        } else if (sharingArray.length < 2) {
+          // Array has less than 2 members, you can add the user directly
+          sharingArray.push(userID);
+          await updateDoc(userRef, {
+            sharing: sharingArray,
+          });
+  
+          Alert.alert("You are now enrolled!");
           navigation.navigate("MainTab")
-          Alert.alert("You are now enrolled!")
+        } else {
+          console.log('Sharing array is already full (maximum 3 users).');
         }
       }
     } catch (error) {
       console.error('Error checking or adding user to sharing array:', error);
     }
+  
+    setLoading(false);
   };
+  
+  
   
 
   const onIconPress = (event) => {
@@ -332,7 +364,8 @@ function PropertyDetailsScreen({ navigation, route }) {
           <Space space={15} />
 
           <View style={{ flex: 1 }}>
-            {item.postedBy === userID || item.sharing.includes(userID) ? (
+            {item.sharing.length > 2 ? null : item.postedBy === userID ||
+              item.sharing.includes(userID) ? (
               <FullButtonStroke
                 disabled={true}
                 color={Theme.primaryColor}
@@ -340,7 +373,7 @@ function PropertyDetailsScreen({ navigation, route }) {
               />
             ) : (
               <FullButton
-                handlePress={() => handleAddSharing()}
+                handlePress={() => handleAddSharing(item.postedBy)}
                 color={Theme.primaryColor}
                 label={`Join Sharing Session ${item.sharing.length}/3`}
               />
