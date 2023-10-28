@@ -19,6 +19,7 @@ import useStore from "../store";
 function HomeScreen({navigation}){
 
   const setUserData = useStore((state) => state.setUserData);
+  const userData = useStore((state) => state.userData);
   const userID = useStore((state) => state.userID);
   const setPropertyData = useStore((state) => state.setPropertyData);
   const propertyData = useStore((state) => state.propertyData);
@@ -115,12 +116,16 @@ function HomeScreen({navigation}){
             elevation: 0,
           }}
         >
-          <Appbar.Action
-            icon={() => {
-              return <Feather name="plus" size={24} color="black" />;
-            }}
-            onPress={() => navigation.navigate("CLStepOne")}
-          />
+          {userData?.userRole === "agent" || userData?.userRole ==="admin" ? (
+            <Appbar.Action
+              icon={() => {
+                return <Feather name="plus" size={24} color="black" />;
+              }}
+              onPress={() => navigation.navigate("CLStepOne")}
+            />
+          ) : (
+            <Appbar.Action />
+          )}
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
           <Appbar.Action
             icon={() => {
@@ -144,12 +149,11 @@ function HomeScreen({navigation}){
           </View>
         ) : (
           <ScrollView>
-            {propertyData?.map((item, index) => {
+            {propertyData && propertyData?.map((item, index) => {
               return (
                 <PostCard key={index} postedBy={item.postedBy} item={item} />
               );
             })}
-
             <Space space={100} />
           </ScrollView>
         )}

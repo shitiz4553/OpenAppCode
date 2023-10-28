@@ -28,12 +28,12 @@ function PostCard({postedBy,item}){
     }, [postedBy]);
 
 
-    const firestoreTimestamp = item.postedDate;
-    const seconds = firestoreTimestamp.seconds;
-    const nanoseconds = firestoreTimestamp.nanoseconds;
+    // const firestoreTimestamp = item.postedDate;
+    // const seconds = firestoreTimestamp.seconds;
+    // const nanoseconds = firestoreTimestamp.nanoseconds;
     
-    const dateObject = new Date(seconds * 1000 + nanoseconds / 1000000); 
-    const formattedDate = dateObject.toDateString();
+    // const dateObject = new Date(seconds * 1000 + nanoseconds / 1000000); 
+    // const formattedDate = dateObject.toDateString();
 
     const fetchData = async () => {
       const docRef = doc(FB_FIRESTORE, "users", postedBy);
@@ -115,9 +115,9 @@ function PostCard({postedBy,item}){
           </Typo>
         </View>
         <Space space={5} />
-        <Typo xs grey bold>
+        {/* <Typo xs grey bold>
           Posted: {formattedDate ? formattedDate : null}
-        </Typo>
+        </Typo> */}
       </Card>
     );}
 export default PostCard;

@@ -7,7 +7,7 @@ import {
     useWindowDimensions,
     Alert
 } from "react-native";
-import { ActivityIndicator, Appbar, Card, Divider, IconButton, MD2Colors, Paragraph } from "react-native-paper";
+import { ActivityIndicator, Appbar, Card, Divider, IconButton, MD2Colors, Menu, Paragraph } from "react-native-paper";
 import assets from "../assets/assets";
 import { Ionicons } from '@expo/vector-icons';
 import Typo from "../components/Typo";
@@ -15,7 +15,7 @@ import Space from "../components/Space";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FullButton from "../components/FullButton";
 import Theme from "../src/Theme";
-import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { FB_FIRESTORE } from "../config/firebase";
 import useStore from "../store";
 import FullButtonStroke from "../components/FullButtonStroke";
@@ -27,6 +27,8 @@ function PropertyDetailsScreen({ navigation, route }) {
   const userData = useStore((state) => state.userData);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading,setLoading] = useState(false)
+  const [visible, setVisible] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     // Check if the item is bookmarked when the component mounts
@@ -105,6 +107,49 @@ function PropertyDetailsScreen({ navigation, route }) {
   };
   
 
+  const onIconPress = (event) => {
+    const { nativeEvent } = event;
+    const anchor = {
+      x: nativeEvent.pageX,
+      y: nativeEvent.pageY,
+    };
+
+    setMenuAnchor(anchor);
+    openMenu();
+  };
+
+  const openMenu = () => {
+    setVisible(true);
+  };
+
+  const closeMenu = () => {
+    setVisible(false);
+  };
+
+  const handleEdit = () => {
+    setVisible(false);
+    navigation.navigate("EditPostScreen",{
+      item:item
+    })
+  };
+
+
+  const handleDelete = async (id) => {
+    try {
+
+      const propertyRef = doc(FB_FIRESTORE, "properties", id); 
+
+      await deleteDoc(propertyRef);
+  
+      Alert.alert("Deleted!", "Your listing has been deleted successfully!");
+      navigation.navigate("MainTab");
+    } catch (error) {
+      // Handle errors if the document couldn't be deleted
+      console.error("Error deleting document: ", error);
+      // You can display an error message or take other appropriate actions here.
+    }
+  };
+
 
   return (
     <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
@@ -136,22 +181,59 @@ function PropertyDetailsScreen({ navigation, route }) {
         scrollEnabled={true}
       >
         <Card style={[styles.cardWrapper, styles.elevation]}>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("PublicProfileViewScreen", {
-                user: av,
-              })
-            }
-            style={styles.info}
-          >
-            <Image
-              source={{
-                uri: av?.userProfilePic,
+          <Menu visible={visible} onDismiss={closeMenu} anchor={menuAnchor}>
+            <Menu.Item onPress={() => handleEdit()} title="Edit" />
+            <Menu.Item
+              onPress={() => {
+                Alert.alert(
+                  "Delete",
+                  "Are you sure to want to delete this post?",
+                  [
+                    {
+                      text: "No",
+                      onPress: () => console.log("Cancel Pressed"),
+                      style: "cancel",
+                    },
+                    {
+                      text: "Yes",
+                      onPress: () => {
+                        handleDelete(item.id);
+                      },
+                    },
+                  ]
+                );
+                setVisible(false);
               }}
-              style={styles.avatar}
+              title="Delete"
             />
-            <Typo>{av?.userName}</Typo>
-          </TouchableOpacity>
+          </Menu>
+          <View
+            style={{
+              flexDirection: "row",
+              flex: 1,
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("PublicProfileViewScreen", {
+                  user: av,
+                })
+              }
+              style={styles.info}
+            >
+              <Image
+                source={{
+                  uri: av?.userProfilePic,
+                }}
+                style={styles.avatar}
+              />
+              <Typo>{av?.userName}</Typo>
+            </TouchableOpacity>
+            {item.postedBy == userID ? (
+              <IconButton icon="dots-vertical" onPress={onIconPress} />
+            ) : null}
+          </View>
           <Space space={10} />
           <View>
             <Card.Cover
@@ -258,7 +340,7 @@ function PropertyDetailsScreen({ navigation, route }) {
               />
             ) : (
               <FullButton
-                handlePress={()=>handleAddSharing()}
+                handlePress={() => handleAddSharing()}
                 color={Theme.primaryColor}
                 label={`Join Sharing Session ${item.sharing.length}/3`}
               />
@@ -299,7 +381,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 5,
-    width: "100%",
   },
   avatar: {
     height: 40,
