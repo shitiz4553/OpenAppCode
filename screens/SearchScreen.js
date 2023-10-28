@@ -91,9 +91,9 @@ function SearchScreen({ navigation }) {
         ) : (
           <FlatList
             data={filteredUsers}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => (
-              <UserCard index={index} user={item} />
+              <UserCard user={item} index={index} />
             )}
           />
         )}

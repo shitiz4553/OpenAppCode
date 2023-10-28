@@ -38,6 +38,7 @@ function PublicPostsTab({userID}) {
 
     setPropertyData(propertiesArray);
     setLoading(false);
+
   };
 
 

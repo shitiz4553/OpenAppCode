@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { 
     View,
     Text,
@@ -15,6 +15,7 @@ import PublicPostsTab from "../components/PublicPostsTab";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { FB_FIRESTORE } from "../config/firebase";
 import useStore from "../store";
+import Space from "../components/Space";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -23,6 +24,8 @@ function PublicProfileViewScreen({navigation,route}){
 
   const {user} = route.params;
   const userID = useStore((state) => state.userID);
+  const [postCount,setPostCount] = useState(0)
+
 
   const handleCreateConversation = async (userID, otherUserID) => {
     const conversationsRef = collection(FB_FIRESTORE, "conversations");
@@ -54,6 +57,40 @@ function PublicProfileViewScreen({navigation,route}){
   };
 
 
+  useEffect(() => {
+    if (user.userRole !== "user") {
+      const propertyRef = collection(FB_FIRESTORE, "properties");
+      const queryref = query(propertyRef, where("postedBy", "==", user.userID));
+  
+      // Create a function to fetch and count the documents
+      const fetchAndCountDocuments = async () => {
+        try {
+          const querySnapshot = await getDocs(queryref);
+          const numberOfDocuments = querySnapshot.size;
+  
+          // Store the number of documents in the state variable
+          setPostCount(numberOfDocuments);
+        } catch (error) {
+          // Handle any errors that may occur during the query
+          console.error("Error fetching documents:", error);
+        }
+      };
+  
+      fetchAndCountDocuments(); // Call the function to fetch and count the documents
+    }
+  }, [user.userRole, user.userID]);
+ 
+  const calculateAverageRating = (ratings) => {
+    if (ratings && ratings.length > 0) {
+      const sumOfRatings = ratings.reduce((acc, curr) => acc + curr.rating, 0);
+      return (sumOfRatings / ratings.length).toFixed(1);
+    }
+    return "0"; // Return "0" as a string when there are no ratings
+  };
+  
+  // Usage:
+  const averageRating = calculateAverageRating(user?.ratings);
+
     return (
       <View style={{ flex: 1, backgroundColor: MD2Colors.grey200 }}>
         <Appbar.Header
@@ -76,24 +113,9 @@ function PublicProfileViewScreen({navigation,route}){
             onPress={() => navigation.goBack()}
           />
           <Image source={assets.logo} style={{ height: 25, width: 160 }} />
-          {user.userID === userID ? (
-            <Appbar.Action />
-          ) : (
-            <Appbar.Action
-              icon={() => {
-                return (
-                  <MaterialCommunityIcons
-                    name="message-plus-outline"
-                    size={24}
-                    color="black"
-                  />
-                );
-              }}
-              onPress={() => handleCreateConversation(userID, user.userID)}
-            />
-          )}
+          <Appbar.Action />
         </Appbar.Header>
-        <View style={styles.contentContainer}>
+        {/* <View style={styles.contentContainer}>
           <View style={styles.avatarHolder}>
             <Avatar.Image
               style={{ elevation: 10 }}
@@ -111,6 +133,55 @@ function PublicProfileViewScreen({navigation,route}){
               </View>
             </View>
           </View>
+        </View> */}
+
+        <View style={styles.contentContainer}>
+          <View style={styles.avatarHolder}>
+            <Avatar.Image
+              style={{ elevation: 10 }}
+              source={{ uri: user?.userProfilePic }}
+              size={90}
+            />
+          </View>
+          <View style={styles.rightHolder}>
+            <View style={styles.userDataContaienr}>
+              {user.userRole !== "user" ? (
+                <View style={{ alignItems: "center" }}>
+                  <Text style={{ fontWeight: "bold", fontSize: 18 }}>{postCount}</Text>
+                  <Caption style={{ marginTop: -5 }}>Posts</Caption>
+                </View>
+              ) : null}
+              <View style={{ alignItems: "center" }}>
+                <Text style={{ fontWeight: "bold", fontSize: 18 }}>{averageRating}</Text>
+                <Caption style={{ marginTop: -5 }}>Rating</Caption>
+              </View>
+              <View style={{ alignItems: "center" }}>
+                <Text style={{ fontWeight: "bold", fontSize: 18 }}>0</Text>
+                <Caption style={{ marginTop: -5 }}>Completed</Caption>
+              </View>
+            </View>
+            <Space space={10} />
+            {
+              user.userID !== userID ?
+              <Button
+              mode="contained"
+              labelStyle={{ color: "white" }}
+              style={{ marginHorizontal: 20 }}
+              onPress={() => navigation.navigate("EditProfileScreen")}
+            >
+              Send a Message
+            </Button>
+            :
+            null
+            }
+          </View>
+        </View>
+
+        <View style={styles.bioholder}>
+          <Text style={{ fontWeight: "bold", fontSize: 18 }}>
+            {user?.userName}
+          </Text>
+          <Text style={{ fontSize: 16 }}>{user?.userBio}</Text>
         </View>
 
         <Tab.Navigator
@@ -160,7 +231,8 @@ const styles = StyleSheet.create({
   userDataContaienr: {
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft:15
+    paddingLeft:15,
+    justifyContent:'space-around',
   },
   bioholder:{
     backgroundColor:'white',
@@ -172,6 +244,7 @@ const styles = StyleSheet.create({
 
 const PostsScreen = ({ route }) => {
   const { user } = route.params;
+
     return(
       <PublicPostsTab userID={user.userID}/>
     )

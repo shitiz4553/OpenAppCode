@@ -157,7 +157,7 @@ function HomeScreen({navigation}){
             <ActivityIndicator size={"large"} />
           </View>
         ) : (
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
              {propertyData &&
             filterPropertyData().map((item, index) => {
               return (
