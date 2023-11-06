@@ -167,7 +167,7 @@ function PublicProfileViewScreen({navigation,route}){
               mode="contained"
               labelStyle={{ color: "white" }}
               style={{ marginHorizontal: 20 }}
-              onPress={() => navigation.navigate("EditProfileScreen")}
+              onPress={() => handleCreateConversation(userID,user.userID)}
             >
               Send a Message
             </Button>
